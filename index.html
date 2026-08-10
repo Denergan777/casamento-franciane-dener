@@ -1,0 +1,48 @@
+<!-- ALTERAÇÃO 1: substitua o CSS atual de .confirmed-list por:
+.confirmed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+<!-- ALTERAÇÃO 2: adicione este CSS logo depois de .guest-name { ... } ou antes de .guest-name::before -->
+.guest-family {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+<!-- ALTERAÇÃO 3: substitua o bloco JS que começa com:
+confirmedList.innerHTML = data
+  .map(guest => `<div class="guest-name">${escapeHtml(guest.nome)}</div>`)
+  .join("");
+
+por:
+confirmedList.innerHTML = data
+  .map(guest => {
+    const total = Number(guest.acompanhantes ?? 1);
+    const peopleText =
+      total === 1 ? "1 pessoa na família" : `${total} pessoas na família`;
+
+    return `<div class="guest-name">
+      <span>${escapeHtml(guest.nome)}</span>
+      <span class="guest-family">- ${peopleText}</span>
+    </div>`;
+  })
+  .join("");
+
+IMPORTANTE: também altere a consulta do Supabase de:
+.select("nome")
+
+para:
+.select("nome, acompanhantes")
+
+<!-- ALTERAÇÃO 4: na seção Lista de presentes, substitua os comentários:
+<!-- Futuramente, o link da lista de presentes poderá ser colocado aqui. -->
+<!-- <a class="future-link" href="SEU_LINK_AQUI" target="_blank" rel="noopener">Ver lista completa</a> -->
+
+por:
+<a class="map-button" href="https://www.mercadolivre.com.br/gz/cart/v2/shared-cart?key=f1069727eeb102800e6c1829cbcc54123eb975b175fda25a883e90a8eab52348&matt_tool=38524122&ua=HhlY7MVjHkJ7vBw6BivrN5AftflvEcEyQ1e5aiFRrujDItw#action=whatsapp"
+   target="_blank"
+   rel="noopener noreferrer">
+  Ver lista de presentes no Mercado Livre
+</a>
