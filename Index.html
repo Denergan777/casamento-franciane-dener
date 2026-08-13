@@ -503,6 +503,67 @@
       margin-top: 18px;
     }
 
+    .noivos-section {
+      background: var(--marble);
+    }
+
+    .noivos-card {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: clamp(24px, 5vw, 40px);
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(181,150,85,.3);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .password-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .password-row input {
+      flex: 1;
+    }
+
+    .password-button {
+      white-space: nowrap;
+    }
+
+    .password-error {
+      display: none;
+      margin-top: 10px;
+      color: #a4483f;
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    .password-error.visible {
+      display: block;
+    }
+
+    #privateGuests {
+      display: none;
+      margin-top: 28px;
+    }
+
+    #privateGuests.visible {
+      display: block;
+    }
+
+    .logout-button {
+      display: block;
+      margin: 20px auto 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
     .confirmed-section { background: var(--marble); }
 
     .confirmed-card {
@@ -629,6 +690,15 @@
       .time-box { padding: 12px 4px 9px; }
       .time-number { font-size: 1.45rem; }
       .time-label { font-size: .5rem; letter-spacing: .08em; }
+      .password-row {
+        flex-direction: column;
+      }
+
+      .password-button {
+        width: 100%;
+      }
+
+
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -785,27 +855,49 @@
       </div>
     </section>
 
-    <section class="confirmed-section" id="confirmados">
+    <section class="noivos-section" id="area-noivos">
       <div class="section-inner">
         <div class="divider" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 20S4 14.8 4 9.3C4 6.6 5.9 5 8.1 5c1.5 0 2.9.8 3.9 2 1-1.2 2.4-2 3.9-2C18.1 5 20 6.6 20 9.3 20 14.8 12 20 12 20Z" stroke="currentColor" stroke-width="1.3"/></svg>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 20S4 14.8 4 9.3C4 6.6 5.9 5 8.1 5c1.5 0 2.9.8 3.9 2 1-1.2 2.4-2 3.9-2C18.1 5 20 6.6 20 9.3 20 14.8 12 20 12 20Z" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
         </div>
-        <h2 class="section-title">Convidados confirmados</h2>
+
+        <h2 class="section-title">Área dos noivos</h2>
         <p class="section-subtitle">
-          Estas são as pessoas que já confirmaram presença para celebrar conosco.
+          Área reservada para Franciane &amp; Dener.
         </p>
 
-        <div class="confirmed-card">
-          <div class="confirmed-summary">
-            <span class="confirmed-count" id="confirmedCount">—</span>
-            <span>convidados confirmados</span>
+        <div class="noivos-card">
+          <div id="passwordPanel">
+            <label for="noivosPassword">Senha</label>
+            <div class="password-row">
+              <input id="noivosPassword" type="password" autocomplete="off" placeholder="Digite a senha">
+              <button class="submit-button password-button" id="passwordButton" type="button">
+                Entrar
+              </button>
+            </div>
+            <div class="password-error" id="passwordError">
+              Senha incorreta. Tente novamente.
+            </div>
           </div>
 
-          <div id="confirmedStatus" class="confirmed-status" role="status" aria-live="polite">
-            Carregando confirmações...
-          </div>
+          <div id="privateGuests">
+            <div class="confirmed-summary">
+              <span class="confirmed-count" id="confirmedCount">—</span>
+              <span>convidados confirmados</span>
+            </div>
 
-          <div id="confirmedList" class="confirmed-list" aria-live="polite"></div>
+            <div id="confirmedStatus" class="confirmed-status" role="status" aria-live="polite">
+              Carregando confirmações...
+            </div>
+
+            <div id="confirmedList" class="confirmed-list" aria-live="polite"></div>
+
+            <button class="logout-button" id="logoutButton" type="button">
+              Bloquear área dos noivos
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -849,6 +941,9 @@
   <footer>
     <div class="footer-couple">Franciane &amp; Dener</div>
     <p class="footer-meta">19 de dezembro de 2026 · Condeúba, BA</p>
+    <a class="scroll-hint" style="margin-top:18px;color:rgba(255,255,255,.58)" href="#area-noivos">
+      Área dos noivos
+    </a>
     <div class="fine-print">Feito com amor para celebrar o nosso grande dia.</div>
   </footer>
 
@@ -928,6 +1023,47 @@
     function normalizeName(name) {
       return name.trim().replace(/\s+/g, " ");
     }
+
+    const NOIVOS_PASSWORD = "DenerFranciane2026";
+    const passwordPanel = document.getElementById("passwordPanel");
+    const passwordInput = document.getElementById("noivosPassword");
+    const passwordButton = document.getElementById("passwordButton");
+    const passwordError = document.getElementById("passwordError");
+    const privateGuests = document.getElementById("privateGuests");
+    const logoutButton = document.getElementById("logoutButton");
+
+    function unlockNoivosArea() {
+      if (passwordInput.value === NOIVOS_PASSWORD) {
+        passwordError.classList.remove("visible");
+        passwordPanel.style.display = "none";
+        privateGuests.classList.add("visible");
+        loadConfirmedGuests();
+        return;
+      }
+
+      passwordError.classList.add("visible");
+      passwordInput.value = "";
+      passwordInput.focus();
+    }
+
+    passwordButton.addEventListener("click", unlockNoivosArea);
+
+    passwordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        unlockNoivosArea();
+      }
+    });
+
+    logoutButton.addEventListener("click", () => {
+      privateGuests.classList.remove("visible");
+      passwordPanel.style.display = "block";
+      passwordInput.value = "";
+      passwordError.classList.remove("visible");
+      confirmedCount.textContent = "—";
+      confirmedStatus.textContent = "Acesso bloqueado.";
+      confirmedList.innerHTML = "";
+      passwordInput.focus();
+    });
 
     async function loadConfirmedGuests() {
       if (!supabaseClient) {
@@ -1081,7 +1217,6 @@
       formMessage.scrollIntoView({ behavior: "smooth", block: "center" });
     });
 
-    loadConfirmedGuests();
   </script>
 </body>
 </html>
